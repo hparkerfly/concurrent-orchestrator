@@ -5,10 +5,11 @@ import java.util.concurrent.CompletionStage;
 
 public class DbService {
 
-  public CompletionStage<String> getAccount(String name) {
+  public CompletionStage<String> getName(String name) {
     return null;
   }
-  public Set<String> getAccounts(Set<String> names) {
+
+  public Set<String> getNames(Set<String> names) {
     return null;
   }
 }

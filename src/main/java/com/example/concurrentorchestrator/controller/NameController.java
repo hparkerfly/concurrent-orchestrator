@@ -13,19 +13,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @Slf4j
 @RestController
 @RequestMapping("names")
-public class BalanceController {
+public class NameController {
 
   @Autowired private OrchestrationService orchestrationService;
 
   @PostMapping
-  public CompletionStage<ResponseEntity<OutputDto>> getBalances(@RequestBody InputDto inputDto) {
+  public CompletionStage<ResponseEntity<OutputDto>> getNames(@RequestBody InputDto inputDto) {
 
     return Optional.of(inputDto)
       .map(InputDto::getNames)
@@ -36,7 +35,7 @@ public class BalanceController {
   }
 
   private ResponseEntity<OutputDto> handleError(Throwable throwable) {
-    log.error("Exception thrown when calculating balances", throwable.getCause());
+    log.error("Exception thrown when transforming names", throwable.getCause());
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
   }
 }
