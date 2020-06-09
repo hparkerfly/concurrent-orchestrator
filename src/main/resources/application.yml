@@ -1,0 +1,28 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+  error:
+    whitelabel:
+      enabled: false
+
+logging:
+  level:
+    ROOT: INFO
+
+spring:
+  application:
+    name: concurrent-orchestrator
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*' # Enable all actuator endpoints
+
+api:
+  orchestration:
+    timeoutSeconds: 2
+    threshold: 5
+    apiPool: 5
+    dbPool: 5
