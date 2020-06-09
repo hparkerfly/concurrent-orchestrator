@@ -1,8 +1,11 @@
 package com.example.concurrentorchestrator.service;
 
+import org.springframework.stereotype.Service;
+
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
 
+@Service
 public class DbService {
 
   public CompletionStage<String> getName(String name) {

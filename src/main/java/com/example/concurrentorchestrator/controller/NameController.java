@@ -24,8 +24,9 @@ public class NameController {
   @Autowired private OrchestrationService orchestrationService;
 
   @PostMapping
-  public CompletionStage<ResponseEntity<OutputDto>> getNames(@RequestBody InputDto inputDto) {
+  public CompletionStage<ResponseEntity<OutputDto>> processNames(@RequestBody InputDto inputDto) {
 
+    log.info("received names: " + inputDto.getNames());
     return Optional.of(inputDto)
       .map(InputDto::getNames)
       .map(orchestrationService::orchestrate)
