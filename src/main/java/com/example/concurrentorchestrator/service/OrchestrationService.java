@@ -39,39 +39,39 @@ public class OrchestrationService {
   @Autowired @Qualifier("apiExecutor") private Executor apiExecutor;
   @Autowired @Qualifier("sleepExecutor") private ScheduledExecutorService sleepExecutor;
 
-  public CompletionStage<Set<String>> orchestrate(Set<String> names) {
-    return Optional.of(names)
+  public CompletionStage<Set<String>> orchestrate(Set<String> words) {
+    return Optional.of(words)
       .map(Set::size)
       .filter(size -> size > threshold)
-      .map(tooBig -> orchestrateNames(names))
-      .orElseGet(() -> processNamesIndividually(names));
+      .map(tooBig -> orchestrateNames(words))
+      .orElseGet(() -> processNamesIndividually(words));
   }
 
-  private CompletionStage<Set<String>> orchestrateNames(Set<String> names) {
+  private CompletionStage<Set<String>> orchestrateNames(Set<String> words) {
 
     CompletionStage<Set<String>> dbPromise = sleepPromise()
       .thenCombineAsync(supplyAsync(() ->
-          dbService.getNames(names), dbExecutor).exceptionally(th -> null),
+          dbService.getNames(words), dbExecutor).exceptionally(th -> null),
         (notRelevant, dto) -> dto, dbExecutor);
 
-    CompletionStage<Set<String>> apiPromise = synchronizePromises(names, name ->
+    CompletionStage<Set<String>> apiPromise = synchronizePromises(words, name ->
       buildPromise(name, apiService::checkApi, this::handleApiResult, apiExecutor));
 
     return resolve(apiPromise, dbPromise, result -> handleResponses(apiPromise, dbPromise, not(Set::isEmpty)));
   }
 
-  private CompletionStage<Set<String>> processNamesIndividually(Set<String> names) {
-    return synchronizePromises(names, this::orchestrateName);
+  private CompletionStage<Set<String>> processNamesIndividually(Set<String> words) {
+    return synchronizePromises(words, this::orchestrateName);
   }
 
-  private CompletionStage<String> orchestrateName(String name) {
+  private CompletionStage<String> orchestrateName(String word) {
 
-    CompletionStage<String> apiPromise = buildPromise(name,
+    CompletionStage<String> apiPromise = buildPromise(word,
       apiService::checkApi, this::handleApiResult, apiExecutor);
 
     CompletionStage<String> dbPromise = sleepPromise()
-      .thenCombineAsync(buildPromise(name, dbService::getName,
-        (dto, th) -> sendErrorIfNeeded(name, th), dbExecutor), (notRelevant, str) -> str, dbExecutor);
+      .thenCombineAsync(buildPromise(word, dbService::getName,
+        (dto, th) -> sendErrorIfNeeded(word, th), dbExecutor), (notRelevant, str) -> str, dbExecutor);
 
     return resolve(apiPromise, dbPromise, result -> handleResponses(apiPromise, dbPromise, Objects::nonNull));
   }
@@ -97,9 +97,9 @@ public class OrchestrationService {
       .thenCompose(Function.identity());
   }
 
-  private <W, S> CompletionStage<W> buildPromise(S name, Function<S, CompletionStage<W>> generator,
+  private <W, S> CompletionStage<W> buildPromise(S word, Function<S, CompletionStage<W>> generator,
                                                  BiConsumer<W, Throwable> finisher, Executor executor) {
-    return supplyAsync(() -> generator.apply(name).whenCompleteAsync(finisher, executor), executor)
+    return supplyAsync(() -> generator.apply(word).whenCompleteAsync(finisher, executor), executor)
       .thenComposeAsync(Function.identity(), executor)
       .exceptionally(th -> null);
   }

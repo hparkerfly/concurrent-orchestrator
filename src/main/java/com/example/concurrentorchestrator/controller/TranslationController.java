@@ -18,15 +18,14 @@ import java.util.concurrent.CompletionStage;
 
 @Slf4j
 @RestController
-@RequestMapping("names")
-public class NameController {
+@RequestMapping("translate")
+public class TranslationController {
 
   @Autowired private OrchestrationService orchestrationService;
 
   @PostMapping
-  public CompletionStage<ResponseEntity<OutputDto>> processNames(@RequestBody InputDto inputDto) {
+  public CompletionStage<ResponseEntity<OutputDto>> translateWords(@RequestBody InputDto inputDto) {
 
-    log.info("received names: " + inputDto.getNames());
     return Optional.of(inputDto)
       .map(InputDto::getNames)
       .map(orchestrationService::orchestrate)
@@ -36,7 +35,7 @@ public class NameController {
   }
 
   private ResponseEntity<OutputDto> handleError(Throwable throwable) {
-    log.error("Exception thrown when transforming names", throwable.getCause());
+    log.error("Exception thrown when translating words", throwable.getCause());
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
   }
 }

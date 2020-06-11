@@ -22,7 +22,7 @@ management:
 
 api:
   orchestration:
-    timeoutSeconds: 2
+    timeoutSeconds: 1
     threshold: 5
     apiPool: 5
     dbPool: 5
